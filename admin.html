@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>অ্যাডমিন প্যানেল | Menswell</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    * { font-family: 'Hind Siliguri', sans-serif; }
+    .inp { width: 100%; border: 2px solid #e5e7eb; border-radius: .75rem; padding: .5rem .75rem; outline: none; background: #fff; font-size: .9rem; }
+    .inp:focus { border-color: #0038f1; }
+    textarea.inp { resize: vertical; }
+    .lbl { display: block; font-size: .78rem; font-weight: 600; margin-bottom: .25rem; color: #374151; }
+    .card { background: #fff; border-radius: 1rem; padding: 1rem; border: 1px solid #e5e7eb; }
+    .sec { background: #fff; border-radius: 1.25rem; padding: 1.25rem; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    .sec-title { font-weight: 700; font-size: 1.1rem; margin-bottom: .25rem; }
+    .sec-sub { font-size: .8rem; color: #6b7280; margin-bottom: 1rem; }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; font-weight: 600; font-size: .85rem; padding: .6rem 1.1rem; border-radius: .75rem; transition: .15s; cursor: pointer; }
+    .btn:active { transform: scale(.97); }
+    #toast { transition: .3s; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900 pb-16">
+
+  <!-- ================= LOGIN GATE ================= -->
+  <div id="login-gate" class="fixed inset-0 z-50 bg-[#212121] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+      <div class="text-center mb-4">
+        <span class="w-14 h-14 mx-auto rounded-2xl bg-[#0038f1] text-white grid place-items-center text-2xl mb-2"><i class="fa-solid fa-lock"></i></span>
+        <h2 class="font-bold text-xl">অ্যাডমিন লগইন</h2>
+        <p class="text-xs text-gray-500">ইউজারনেম ও পাসওয়ার্ড দিন</p>
+      </div>
+      <label class="lbl">ইউজারনেম</label>
+      <input id="login-user" class="inp mb-3" placeholder="admin" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()" />
+      <label class="lbl">পাসওয়ার্ড</label>
+      <input id="login-pass" type="password" class="inp" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" />
+      <p id="login-err" class="hidden text-xs text-red-600 font-semibold mt-2"></p>
+      <button onclick="doLogin()" id="login-btn" class="btn w-full justify-center bg-[#0038f1] hover:bg-[#0029b8] text-white mt-4"><i class="fa-solid fa-right-to-bracket"></i>লগইন</button>
+    </div>
+  </div>
+
+  <!-- ================= TOP BAR ================= -->
+  <header class="sticky top-0 z-40 bg-[#212121] text-white shadow-lg">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-2 flex-wrap">
+      <h1 class="font-bold text-lg"><i class="fa-solid fa-gear text-[#7aa2ff] mr-2"></i>অ্যাডমিন প্যানেল</h1>
+      <div class="flex gap-2">
+        <button onclick="saveAll()" class="btn bg-[#0038f1] hover:bg-[#0029b8] text-white"><i class="fa-solid fa-floppy-disk"></i>সেভ করুন</button>
+        <button onclick="window.open('index.html','_blank')" class="btn bg-white/15 hover:bg-white/25 text-white"><i class="fa-solid fa-eye"></i>ওয়েবসাইট দেখুন</button>
+        <button onclick="resetAll()" class="btn bg-white/15 hover:bg-red-600 text-white"><i class="fa-solid fa-rotate-left"></i>রিসেট</button>
+        <button onclick="doLogout()" class="btn bg-white/15 hover:bg-white/25 text-white"><i class="fa-solid fa-right-from-bracket"></i>লগআউট</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 mt-6 space-y-5">
+
+    <div class="bg-amber-50 border border-amber-300 rounded-xl p-4 text-sm">
+      <p><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i><b>নিয়ম:</b> এখানে বদলে <b>সেভ করুন</b> চাপুন → তারপর <b>ওয়েবসাইট দেখুন</b> চেপে চেক করুন। এই পেজের লিংক কাউকে দেবেন না।</p>
+      <p class="mt-1 text-gray-600">নোট: সেটিংস এই ব্রাউজারে সেভ থাকে। অন্য মোবাইল/কম্পিউটারে দেখতে চাইলে সেখানেও একবার এডমিন থেকে সেভ করতে হবে।</p>
+    </div>
+
+    <!-- ================= ব্র্যান্ড ================= -->
+    <section class="sec">
+      <h2 class="sec-title">🏷️ ব্র্যান্ড / লোগো</h2>
+      <p class="sec-sub">দোকানের নাম, লোগো ছবি ও হটলাইন নম্বর</p>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div><label class="lbl">দোকানের নাম</label><input id="b-name" class="inp" /></div>
+        <div><label class="lbl">হটলাইন / ফোন নম্বর</label><input id="b-phone" class="inp" /></div>
+      </div>
+      <div class="mt-3"><label class="lbl">লোগো ছবির URL (খালি রাখলে ডিফল্ট আইকন দেখাবে)</label><input id="b-logo" class="inp" placeholder="https://..." /></div>
+      <div class="mt-3 flex items-center gap-3"><img id="b-logo-preview" class="h-12 w-auto object-contain border border-gray-200 rounded-lg bg-white" alt="লোগো প্রিভিউ" /><span class="text-xs text-gray-500">লোগো প্রিভিউ</span></div>
+    </section>
+
+    <!-- ================= শিপিং + অফার ================= -->
+    <section class="sec">
+      <h2 class="sec-title">🚚 ডেলিভারি চার্জ ও অফার</h2>
+      <p class="sec-sub">ডেলিভারি চার্জ ও কাউন্টডাউন সময়</p>
+      <div class="grid grid-cols-3 gap-3">
+        <div><label class="lbl">ঢাকার ভিতরে (৳)</label><input id="sh-dhaka" type="number" min="0" class="inp" /></div>
+        <div><label class="lbl">ঢাকার বাইরে (৳)</label><input id="sh-out" type="number" min="0" class="inp" /></div>
+        <div><label class="lbl">অফার সময় (ঘণ্টা)</label><input id="off-hours" type="number" min="1" class="inp" /></div>
+      </div>
+    </section>
+
+    <!-- ================= প্রোডাক্ট ================= -->
+    <section class="sec">
+      <div class="flex items-center justify-between mb-1">
+        <h2 class="sec-title">👕 প্রোডাক্টসমূহ</h2>
+        <button onclick="addProduct()" class="btn bg-green-600 hover:bg-green-700 text-white"><i class="fa-solid fa-plus"></i>নতুন প্রোডাক্ট</button>
+      </div>
+      <p class="sec-sub">নাম, দাম, রঙ, সাইজ, ছবি — সব এখান থেকে বদলান</p>
+      <div id="product-list" class="space-y-3"></div>
+    </section>
+
+    <!-- ================= স্লাইডার ================= -->
+    <section class="sec">
+      <div class="flex items-center justify-between mb-1">
+        <h2 class="sec-title">🖼️ হিরো স্লাইডার</h2>
+        <button onclick="addSlide()" class="btn bg-green-600 hover:bg-green-700 text-white"><i class="fa-solid fa-plus"></i>নতুন স্লাইড</button>
+      </div>
+      <p class="sec-sub">উপরের বড় ব্যানার ছবি ও লেখা</p>
+      <div id="slide-list" class="space-y-3"></div>
+    </section>
+
+    <!-- ================= FAQ ================= -->
+    <section class="sec">
+      <div class="flex items-center justify-between mb-1">
+        <h2 class="sec-title">❓ প্রশ্নোত্তর (FAQ)</h2>
+        <button onclick="addFaq()" class="btn bg-green-600 hover:bg-green-700 text-white"><i class="fa-solid fa-plus"></i>নতুন প্রশ্ন</button>
+      </div>
+      <p class="sec-sub">ক্রেতাদের সাধারণ প্রশ্ন ও উত্তর</p>
+      <div id="faq-list" class="space-y-3"></div>
+    </section>
+
+    <!-- ================= পেমেন্ট / যোগাযোগ ================= -->
+    <section class="sec">
+      <h2 class="sec-title">💰 পেমেন্ট ও WhatsApp নম্বর</h2>
+      <p class="sec-sub">বিকাশ/নগদ নম্বর ও WhatsApp — অর্ডার ফর্মে এগুলোই দেখাবে</p>
+      <div class="grid sm:grid-cols-3 gap-3">
+        <div><label class="lbl">WhatsApp নম্বর (880 দিয়ে)</label><input id="in-wa" class="inp" placeholder="8801XXXXXXXXX" /></div>
+        <div><label class="lbl">বিকাশ নম্বর</label><input id="in-bkash" class="inp" placeholder="01XXXXXXXXX" /></div>
+        <div><label class="lbl">নগদ নম্বর</label><input id="in-nagad" class="inp" placeholder="01XXXXXXXXX" /></div>
+      </div>
+    </section>
+
+    <!-- ================= ইন্টিগ্রেশন ================= -->
+    <section class="sec">
+      <h2 class="sec-title">🔗 Pixel / Telegram / Google Form</h2>
+      <p class="sec-sub">অর্ডার নোটিফিকেশন ও ট্র্যাকিং — ID গুলো এখানে বসান</p>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div><label class="lbl">Meta Pixel ID</label><input id="in-pixel" class="inp" /></div>
+        <div><label class="lbl">Google Form ID</label><input id="in-form-id" class="inp" /></div>
+        <div><label class="lbl">Telegram Bot Token</label><input id="in-tg-token" class="inp" /></div>
+        <div><label class="lbl">Telegram Chat ID</label><input id="in-tg-chat" class="inp" /></div>
+      </div>
+      <div class="mt-4">
+        <p class="lbl">Google Form entry.* ID (ফর্মের প্রতিটি প্রশ্নের entry নম্বর)</p>
+        <div id="entry-grid" class="grid sm:grid-cols-2 gap-3"></div>
+      </div>
+    </section>
+
+    <!-- ================= পাসওয়ার্ড বদলান ================= -->
+    <section class="sec">
+      <h2 class="sec-title">🔐 লগইন পাসওয়ার্ড বদলান</h2>
+      <p class="sec-sub">বর্তমান পাসওয়ার্ড দিয়ে নতুন ইউজারনেম/পাসওয়ার্ড সেট করুন</p>
+      <div class="grid sm:grid-cols-3 gap-3">
+        <div><label class="lbl">বর্তমান পাসওয়ার্ড</label><input id="pw-cur" type="password" class="inp" /></div>
+        <div><label class="lbl">নতুন ইউজারনেম</label><input id="pw-user" class="inp" /></div>
+        <div><label class="lbl">নতুন পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</label><input id="pw-new" type="password" class="inp" /></div>
+      </div>
+      <button onclick="changePw()" class="btn bg-[#212121] hover:bg-black text-white mt-3"><i class="fa-solid fa-key"></i>পাসওয়ার্ড আপডেট করুন</button>
+    </section>
+
+    <button onclick="saveAll()" class="btn w-full justify-center bg-[#0038f1] hover:bg-[#0029b8] text-white text-base py-3.5"><i class="fa-solid fa-floppy-disk"></i>সব সেভ করুন</button>
+  </main>
+
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 translate-y-24 opacity-0 z-50 bg-[#212121] text-white text-sm font-semibold px-6 py-3 rounded-full shadow-2xl"></div>
+
+  <script>
+    const KEY = 'menswell_settings_v1';
+
+    /* ================= ডিফল্ট মান (ওয়েবসাইটের মতোই) ================= */
+    const DEFAULTS = {
+      brand: {
+        name: 'Menswell',
+        logo: 'https://menswellbd.com/storage/settings/Oo6cVxhVuzZcMHjKjapRbxiHeUglVDZG6PCLhWaQ.png',
+        phone: '01811585805',
+      },
+      shipping: { dhaka: 60, outsideDhaka: 120 },
+      offer: { hours: 12 },
+      products: [
+        { name: 'প্রিমিয়াম ওভারসাইজড টি-শার্ট', price: 499, mrp: 699, tag: 'বেস্ট সেলার',
+          colors: ['কালো', 'সাদা', 'নেভি', 'অলিভ'], sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+          images: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=900&q=80', 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=900&q=80', 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=900&q=80'] },
+        { name: 'স্লিম ফিট ক্রু নেক টি-শার্ট', price: 449, mrp: 649, tag: 'নতুন',
+          colors: ['সাদা', 'ধূসর', 'কালো'], sizes: ['S', 'M', 'L', 'XL'],
+          images: ['https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=900&q=80', 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=900&q=80', 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=900&q=80'] },
+        { name: 'ভিনটেজ ফেড টি-শার্ট', price: 549, mrp: 799, tag: 'স্পেশাল অফার',
+          colors: ['গাঢ় নেভি', 'ওয়াইন', 'কালো'], sizes: ['M', 'L', 'XL', 'XXL'],
+          images: ['https://images.unsplash.com/photo-1554568218-0f1715e72254?w=900&q=80', 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=900&q=80', 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=900&q=80'] },
+        { name: 'প্রিমিয়াম পোলো শার্ট', price: 699, mrp: 999, tag: 'প্রিমিয়াম',
+          colors: ['নেভি', 'কালো', 'সাদা'], sizes: ['S', 'M', 'L', 'XL'],
+          images: ['https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=900&q=80', 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=900&q=80', 'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=900&q=80'] },
+      ],
+      slides: [
+        { img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=1600&q=80', title: 'নতুন কালেকশন ২০২৬', subtitle: 'প্রিমিয়াম ওভারসাইজড টি-শার্ট', tag: 'NEW ARRIVAL' },
+        { img: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=1600&q=80', title: 'সীমিত সময়ের অফার', subtitle: 'সেরা মানের ফেব্রিক, আরামদায়ক ফিট', tag: 'OFFER' },
+        { img: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=1600&q=80', title: 'সারা বাংলাদেশে ডেলিভারি', subtitle: 'ঢাকা ও ঢাকার বাইরে নিরাপদ ডেলিভারি', tag: 'DELIVERY' },
+        { img: 'https://images.unsplash.com/photo-1554568218-0f1715e72254?w=1600&q=80', title: 'ক্যাশ অন ডেলিভারি', subtitle: 'হাতে পেয়ে পেমেন্ট করুন', tag: 'COD' },
+      ],
+      faqs: [
+        { q: 'ডেলিভারি কতদিন লাগে?', a: 'ঢাকার ভিতরে ১-২ দিন এবং ঢাকার বাইরে ২-৪ দিনের মধ্যে ডেলিভারি পাবেন। ডেলিভারি চার্জ ঢাকার ভিতরে ৳60 এবং ঢাকার বাইরে ৳120।' },
+        { q: 'ক্যাশ অন ডেলিভারি কি সুবিধা আছে?', a: 'হ্যাঁ, পণ্যটি হাতে পেয়ে সম্পূর্ণ টাকা পরিশোধ করতে পারবেন। বাড়তি কোনো চার্জ নেই।' },
+        { q: 'সাইজ এক্সচেঞ্জ/রিটার্ন করা যাবে?', a: 'হ্যাঁ, সাইজ ঠিক না হলে ৩ দিনের মধ্যে এক্সচেঞ্জ করতে পারবেন। তবে শর্ত হলো ট্যাগসহ অক্ষত অবস্থায় থাকতে হবে।' },
+        { q: 'বিকাশ/নগদ দিয়ে পেমেন্ট করবো কিভাবে?', a: 'আমাদের প্রদত্ত বিকাশ/নগদ নাম্বারে সেন্ড মানি করুন এবং ট্রানজেকশন আইডি অর্ডার ফর্মে দিন। আমরা ভেরিফাই করে অর্ডার কনফার্ম করবো।' },
+        { q: 'কোন সাইজ নেবো কীভাবে বুঝবো?', a: 'উপরের সাইজ গাইড টেবিল থেকে আপনার পরিমাপ মিলিয়ে নিন। নিশ্চিত না হলে WhatsApp-এ মেসেজ করে আমাদের জিজ্ঞেস করতে পারেন।' },
+      ],
+      integrations: {
+        metaPixelId: 'XXXXXXXX',
+        telegramBotToken: 'YOUR_TELEGRAM_BOT_TOKEN',
+        telegramChatId: 'YOUR_TELEGRAM_CHAT_ID',
+        googleFormId: 'YOUR_FORM_ID',
+        whatsappNumber: '8801811585805',
+        bkashNumber: '01811585805',
+        nagadNumber: '01811585805',
+        googleFormEntries: {
+          name: 'entry.1000000000', phone: 'entry.1000000001', address: 'entry.1000000002',
+          color: 'entry.1000000003', size: 'entry.1000000004', qty: 'entry.1000000005',
+          shipping: 'entry.1000000006', total: 'entry.1000000007', payment: 'entry.1000000008',
+          trxId: 'entry.1000000009',
+        },
+      },
+    };
+    const ENTRY_LABELS = { name: 'নাম', phone: 'মোবাইল', address: 'ঠিকানা', color: 'রঙ', size: 'সাইজ', qty: 'পরিমাণ', shipping: 'ডেলিভারি', total: 'মোট', payment: 'পেমেন্ট', trxId: 'Trx ID' };
+
+    /* ================= স্টেট ================= */
+    const deepCopy = (o) => JSON.parse(JSON.stringify(o));
+    const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const $ = (id) => document.getElementById(id);
+
+    /* ================= লগইন গেট (ইউজারনেম + পাসওয়ার্ড) ================= */
+    const AUTH_KEY = 'menswell_admin_auth';
+    const SESSION_KEY = 'menswell_admin_session';
+    const DEFAULT_USER = 'admin';
+    const DEFAULT_HASH = 'e45476993218036569e63b9e4e23e771232fd98bfb936704e48032553494e2ed'; // admin123-এর SHA-256
+    let failCount = 0, lockUntil = 0;
+
+    function fallbackHash(str) {
+      let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+      for (let i = 0; i < str.length; i++) {
+        const ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+      }
+      h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+      h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+      return 'fb-' + (h1 >>> 0).toString(16) + (h2 >>> 0).toString(16);
+    }
+    function digest(str) {
+      try {
+        if (window.crypto && crypto.subtle) {
+          return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(b =>
+            [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('')
+          ).catch(() => fallbackHash(str));
+        }
+      } catch (e) {}
+      return Promise.resolve(fallbackHash(str));
+    }
+    const recipe = (u, p) => 'menswell-admin|' + String(u).trim().toLowerCase() + '|' + String(p);
+    function storedCreds() {
+      try { const c = JSON.parse(localStorage.getItem(AUTH_KEY)); if (c && c.user && c.hash) return c; } catch (e) {}
+      return { user: DEFAULT_USER, hash: DEFAULT_HASH };
+    }
+    async function verifyLogin(user, pass) {
+      const c = storedCreds();
+      if (String(user).trim().toLowerCase() !== c.user) return false;
+      const r = recipe(user, pass);
+      if ((await digest(r)) === c.hash) return true;
+      return fallbackHash(r) === c.hash;
+    }
+    function loginErr(m) { const e = $('login-err'); e.textContent = m; e.classList.remove('hidden'); }
+    async function doLogin() {
+      const now = Date.now();
+      if (now < lockUntil) { loginErr('অনেকবার ভুল হয়েছে। ' + Math.ceil((lockUntil - now) / 1000) + ' সেকেন্ড পর আবার চেষ্টা করুন'); return; }
+      const btn = $('login-btn');
+      btn.disabled = true;
+      const ok = await verifyLogin($('login-user').value, $('login-pass').value);
+      btn.disabled = false;
+      if (ok) {
+        failCount = 0;
+        sessionStorage.setItem(SESSION_KEY, '1');
+        $('login-gate').style.display = 'none';
+        $('login-pass').value = '';
+        $('login-err').classList.add('hidden');
+    // লগইন ছাড়া প্যানেল দেখাবে না
+    if (sessionStorage.getItem(SESSION_KEY) === '1') {
+      $('login-gate').style.display = 'none';
+      renderAll();
+    }
+      } else {
+        failCount++;
+        if (failCount >= 5) { lockUntil = Date.now() + 60000; failCount = 0; loginErr('৫ বার ভুল হয়েছে। ১ মিনিট পর আবার চেষ্টা করুন'); }
+        else loginErr('ভুল ইউজারনেম বা পাসওয়ার্ড (' + failCount + '/৫)');
+      }
+    }
+    function doLogout() { sessionStorage.removeItem(SESSION_KEY); location.reload(); }
+    async function changePw() {
+      const cur = $('pw-cur').value, nu = $('pw-user').value.trim(), np = $('pw-new').value;
+      if (!cur || !nu || !np) { alert('তিনটি ঘরই পূরণ করুন'); return; }
+      if (np.length < 6) { alert('নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে'); return; }
+      const c = storedCreds();
+      if (!(await verifyLogin(c.user, cur))) { alert('বর্তমান পাসওয়ার্ড ভুল'); return; }
+      localStorage.setItem(AUTH_KEY, JSON.stringify({ user: nu.toLowerCase(), hash: await digest(recipe(nu, np)) }));
+      $('pw-cur').value = ''; $('pw-new').value = '';
+      toast('✅ লগইন তথ্য আপডেট হয়েছে');
+    }
+
+    function loadState() {
+      const d = deepCopy(DEFAULTS);
+      let s = null;
+      try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+      if (!s || typeof s !== 'object') return d;
+      if (s.brand) Object.assign(d.brand, s.brand);
+      if (s.shipping) Object.assign(d.shipping, s.shipping);
+      if (s.offer) Object.assign(d.offer, s.offer);
+      if (s.integrations) {
+        Object.assign(d.integrations, s.integrations);
+        if (s.integrations.googleFormEntries) Object.assign(d.integrations.googleFormEntries, s.integrations.googleFormEntries);
+      }
+      if (s.googleFormEntries) Object.assign(d.integrations.googleFormEntries, s.googleFormEntries);
+      if (Array.isArray(s.products) && s.products.length) d.products = s.products;
+      if (Array.isArray(s.slides) && s.slides.length) d.slides = s.slides;
+      if (Array.isArray(s.faqs) && s.faqs.length) d.faqs = s.faqs;
+      return d;
+    }
+    let S = loadState();
+
+    /* ================= রেন্ডার ================= */
+    function renderAll() {
+      $('b-name').value = S.brand.name || '';
+      $('b-logo').value = S.brand.logo || '';
+      $('b-phone').value = S.brand.phone || '';
+      $('b-logo-preview').src = S.brand.logo || '';
+      $('sh-dhaka').value = S.shipping.dhaka;
+      $('sh-out').value = S.shipping.outsideDhaka;
+      $('off-hours').value = S.offer.hours;
+      $('in-wa').value = S.integrations.whatsappNumber || '';
+      $('in-bkash').value = S.integrations.bkashNumber || '';
+      $('in-nagad').value = S.integrations.nagadNumber || '';
+      $('in-pixel').value = S.integrations.metaPixelId || '';
+      $('in-form-id').value = S.integrations.googleFormId || '';
+      $('in-tg-token').value = S.integrations.telegramBotToken || '';
+      $('in-tg-chat').value = S.integrations.telegramChatId || '';
+      renderEntries();
+      renderProducts();
+      renderSlides();
+      renderFaqs();
+    }
+
+    function renderEntries() {
+      const g = $('entry-grid'); g.innerHTML = '';
+      Object.keys(ENTRY_LABELS).forEach(k => {
+        const d = document.createElement('div');
+        d.innerHTML = '<label class="lbl">' + ENTRY_LABELS[k] + '</label><input class="inp en-field" data-k="' + k + '" value="' + esc(S.integrations.googleFormEntries[k] || '') + '" />';
+        g.appendChild(d);
+      });
+    }
+
+    function renderProducts() {
+      const w = $('product-list'); w.innerHTML = '';
+      S.products.forEach((p, i) => {
+        const d = document.createElement('div');
+        d.className = 'card';
+        d.setAttribute('data-i', i);
+        const thumb = (p.images && p.images[0]) ? '<img src="' + esc(p.images[0]) + '" class="w-14 h-14 rounded-lg object-cover border border-gray-200" onerror="this.style.display=\'none\'" />' : '';
+        d.innerHTML =
+          '<div class="flex items-center justify-between mb-3 gap-2">' +
+            '<div class="flex items-center gap-2">' + thumb + '<b>প্রোডাক্ট ' + (i + 1) + '</b></div>' +
+            '<button onclick="delProduct(' + i + ')" class="btn bg-red-50 hover:bg-red-100 text-red-600 !py-2"><i class="fa-solid fa-trash"></i>ডিলিট</button>' +
+          '</div>' +
+          '<div class="grid sm:grid-cols-2 gap-3">' +
+            '<div><label class="lbl">নাম *</label><input class="inp p-name" value="' + esc(p.name) + '" /></div>' +
+            '<div><label class="lbl">ট্যাগ (যেমন: বেস্ট সেলার)</label><input class="inp p-tag" value="' + esc(p.tag) + '" /></div>' +
+            '<div><label class="lbl">দাম (৳) *</label><input type="number" min="1" class="inp p-price" value="' + p.price + '" /></div>' +
+            '<div><label class="lbl">আগের দাম (৳)</label><input type="number" min="0" class="inp p-mrp" value="' + p.mrp + '" /></div>' +
+            '<div><label class="lbl">রঙ (কমা দিয়ে আলাদা)</label><input class="inp p-colors" value="' + esc((p.colors || []).join(', ')) + '" /></div>' +
+            '<div><label class="lbl">সাইজ (কমা দিয়ে আলাদা)</label><input class="inp p-sizes" value="' + esc((p.sizes || []).join(', ')) + '" /></div>' +
+          '</div>' +
+          '<div class="mt-3"><label class="lbl">ছবির URL (প্রতি লাইনে ১টি, প্রথমটি মেইন ছবি) *</label><textarea rows="3" class="inp p-images">' + esc((p.images || []).join('\n')) + '</textarea></div>';
+        w.appendChild(d);
+      });
+      if (!S.products.length) w.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">কোনো প্রোডাক্ট নেই — নতুন প্রোডাক্ট যোগ করুন</p>';
+    }
+
+    function renderSlides() {
+      const w = $('slide-list'); w.innerHTML = '';
+      S.slides.forEach((s, i) => {
+        const d = document.createElement('div');
+        d.className = 'card';
+        d.setAttribute('data-i', i);
+        d.innerHTML =
+          '<div class="flex items-center justify-between mb-3">' +
+            '<div class="flex items-center gap-2"><img src="' + esc(s.img) + '" class="w-20 h-12 rounded-lg object-cover border border-gray-200" onerror="this.style.display=\'none\'" /><b>স্লাইড ' + (i + 1) + '</b></div>' +
+            '<button onclick="delSlide(' + i + ')" class="btn bg-red-50 hover:bg-red-100 text-red-600 !py-2"><i class="fa-solid fa-trash"></i>ডিলিট</button>' +
+          '</div>' +
+          '<div class="grid sm:grid-cols-2 gap-3">' +
+            '<div><label class="lbl">ছবির URL *</label><input class="inp s-img" value="' + esc(s.img) + '" /></div>' +
+            '<div><label class="lbl">ছোট ট্যাগ</label><input class="inp s-tag" value="' + esc(s.tag) + '" /></div>' +
+            '<div><label class="lbl">বড় শিরোনাম *</label><input class="inp s-title" value="' + esc(s.title) + '" /></div>' +
+            '<div><label class="lbl">ছোট লেখা</label><input class="inp s-sub" value="' + esc(s.subtitle) + '" /></div>' +
+          '</div>';
+        w.appendChild(d);
+      });
+    }
+
+    function renderFaqs() {
+      const w = $('faq-list'); w.innerHTML = '';
+      S.faqs.forEach((f, i) => {
+        const d = document.createElement('div');
+        d.className = 'card';
+        d.setAttribute('data-i', i);
+        d.innerHTML =
+          '<div class="flex items-center justify-between mb-3"><b>প্রশ্ন ' + (i + 1) + '</b>' +
+          '<button onclick="delFaq(' + i + ')" class="btn bg-red-50 hover:bg-red-100 text-red-600 !py-2"><i class="fa-solid fa-trash"></i>ডিলিট</button></div>' +
+          '<div><label class="lbl">প্রশ্ন *</label><input class="inp f-q" value="' + esc(f.q) + '" /></div>' +
+          '<div class="mt-3"><label class="lbl">উত্তর *</label><textarea rows="2" class="inp f-a">' + esc(f.a) + '</textarea></div>';
+        w.appendChild(d);
+      });
+    }
+
+    /* ================= Add / Delete ================= */
+    function collect() {
+      S.brand.name = $('b-name').value.trim();
+      S.brand.logo = $('b-logo').value.trim();
+      S.brand.phone = $('b-phone').value.trim();
+      S.shipping.dhaka = Math.max(0, +$('sh-dhaka').value || 0);
+      S.shipping.outsideDhaka = Math.max(0, +$('sh-out').value || 0);
+      S.offer.hours = Math.max(1, +$('off-hours').value || 12);
+      S.integrations.whatsappNumber = $('in-wa').value.trim();
+      S.integrations.bkashNumber = $('in-bkash').value.trim();
+      S.integrations.nagadNumber = $('in-nagad').value.trim();
+      S.integrations.metaPixelId = $('in-pixel').value.trim();
+      S.integrations.googleFormId = $('in-form-id').value.trim();
+      S.integrations.telegramBotToken = $('in-tg-token').value.trim();
+      S.integrations.telegramChatId = $('in-tg-chat').value.trim();
+      document.querySelectorAll('.en-field').forEach(el => { S.integrations.googleFormEntries[el.dataset.k] = el.value.trim(); });
+      const csv = (v) => v.split(',').map(x => x.trim()).filter(Boolean);
+      S.products = [...document.querySelectorAll('#product-list > div[data-i]')].map(row => ({
+        name: row.querySelector('.p-name').value.trim(),
+        tag: row.querySelector('.p-tag').value.trim(),
+        price: Math.max(1, +row.querySelector('.p-price').value || 1),
+        mrp: Math.max(0, +row.querySelector('.p-mrp').value || 0),
+        colors: csv(row.querySelector('.p-colors').value),
+        sizes: csv(row.querySelector('.p-sizes').value),
+        images: row.querySelector('.p-images').value.split('\n').map(x => x.trim()).filter(Boolean),
+      }));
+      S.slides = [...document.querySelectorAll('#slide-list > div[data-i]')].map(row => ({
+        img: row.querySelector('.s-img').value.trim(),
+        tag: row.querySelector('.s-tag').value.trim(),
+        title: row.querySelector('.s-title').value.trim(),
+        subtitle: row.querySelector('.s-sub').value.trim(),
+      }));
+      S.faqs = [...document.querySelectorAll('#faq-list > div[data-i]')].map(row => ({
+        q: row.querySelector('.f-q').value.trim(),
+        a: row.querySelector('.f-a').value.trim(),
+      }));
+    }
+
+    function addProduct() { collect(); S.products.push({ name: 'নতুন প্রোডাক্ট', price: 499, mrp: 699, tag: '', colors: ['কালো'], sizes: ['M', 'L', 'XL'], images: [] }); renderProducts(); toast('নতুন প্রোডাক্ট যোগ হয়েছে — তথ্য দিয়ে সেভ করুন'); }
+    function delProduct(i) { if (!confirm('এই প্রোডাক্ট ডিলিট করবেন?')) return; collect(); S.products.splice(i, 1); renderProducts(); }
+    function addSlide() { collect(); S.slides.push({ img: '', title: 'নতুন অফার', subtitle: '', tag: '' }); renderSlides(); }
+    function delSlide(i) { if (!confirm('এই স্লাইড ডিলিট করবেন?')) return; collect(); S.slides.splice(i, 1); renderSlides(); }
+    function addFaq() { collect(); S.faqs.push({ q: '', a: '' }); renderFaqs(); }
+    function delFaq(i) { if (!confirm('এই প্রশ্ন ডিলিট করবেন?')) return; collect(); S.faqs.splice(i, 1); renderFaqs(); }
+
+    /* ================= Save / Reset ================= */
+    function toast(msg) {
+      const t = $('toast');
+      t.textContent = msg;
+      t.style.transform = 'translate(-50%, 0)';
+      t.style.opacity = '1';
+      clearTimeout(t._h);
+      t._h = setTimeout(() => { t.style.transform = 'translate(-50%, 6rem)'; t.style.opacity = '0'; }, 2500);
+    }
+
+    function saveAll() {
+      collect();
+      const errs = [];
+      if (!S.brand.name) errs.push('দোকানের নাম দিন');
+      S.products.forEach((p, i) => {
+        if (!p.name) errs.push('প্রোডাক্ট ' + (i + 1) + ': নাম দিন');
+        if (!(p.price > 0)) errs.push('প্রোডাক্ট ' + (i + 1) + ': সঠিক দাম দিন');
+        if (!p.images.length) errs.push('প্রোডাক্ট ' + (i + 1) + ': কমপক্ষে ১টি ছবির URL দিন');
+      });
+      S.slides.forEach((s, i) => {
+        if (!s.title) errs.push('স্লাইড ' + (i + 1) + ': শিরোনাম দিন');
+        if (!s.img) errs.push('স্লাইড ' + (i + 1) + ': ছবির URL দিন');
+      });
+      S.faqs.forEach((f, i) => { if (!f.q || !f.a) errs.push('প্রশ্ন ' + (i + 1) + ': প্রশ্ন ও উত্তর দুটোই দিন'); });
+      if (!S.products.length) errs.push('কমপক্ষে ১টি প্রোডাক্ট রাখুন');
+      if (errs.length) { alert('ঠিক করুন:\n• ' + errs.join('\n• ')); return; }
+      try {
+        localStorage.setItem(KEY, JSON.stringify(S));
+        toast('✅ সেভ হয়েছে! ওয়েবসাইট দেখুন চেপে চেক করুন');
+      } catch (e) { alert('সেভ করা যায়নি (স্টোরেজ ফুল হতে পারে)'); }
+    }
+
+    function resetAll() {
+      if (!confirm('সব সেটিংস ডিফল্টে ফিরিয়ে নেবেন?')) return;
+      localStorage.removeItem(KEY);
+      location.reload();
+    }
+
+    $('b-logo').addEventListener('input', (e) => { $('b-logo-preview').src = e.target.value.trim(); });
+
+    renderAll();
+  </script>
+</body>
+</html>
